@@ -17,6 +17,7 @@ void SceneManager::setup(string _name, Scene *&&scene)
 
 
     ip = ofxIPAddress::getPrivate();
+    port = 53548;
     udp.Create();
     udp.Bind(port);
     udp.SetNonBlocking(true);
