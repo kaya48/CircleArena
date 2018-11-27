@@ -31,7 +31,7 @@ void ResultScene::uiEvent(ofxUIEventArgs &e)
 {
     if (e.isName("ok")) {
         if (e.widget->getState() == OFX_UI_STATE_OVER) {
-            SceneManager::setNext(new EditorScene(), true);
+            SceneManager::setNext("EditorScene", new EditorScene());
         }
     }
 }

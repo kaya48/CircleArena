@@ -78,7 +78,7 @@ void NetworkScene::networkRecieved(string message)
     }
 
     connectUI.removeWidgets();
-    SceneManager::setNext(new World(message, server), true);
+    SceneManager::setNext("world", new World(message, server));
 
 }
 

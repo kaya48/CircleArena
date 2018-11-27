@@ -4,7 +4,7 @@
 void ofApp::setup(){
     ofSetFullscreen(true);
 
-    SceneManager::setup(new TitleScene());
+    SceneManager::setup("TitleScene", new TitleScene());
 }
 
 //--------------------------------------------------------------

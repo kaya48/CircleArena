@@ -47,9 +47,9 @@ World::World(string ip, bool server)
 void World::update()
 {
     if (unit->isDead()) {
-        SceneManager::setNext(new ResultScene(false));
+        SceneManager::setNext("ResultScene", new ResultScene(false));
     } else if (enemy->isDead()) {
-        SceneManager::setNext(new ResultScene(true));
+        SceneManager::setNext("ResultScene", new ResultScene(true));
     }
 
     Scene::update();

@@ -8,11 +8,12 @@
 #include "ofxipaddress.h"
 
 using std::unique_ptr;
+using std::unordered_map;
 
 class SceneManager
 {
 public:
-    static void setup(Scene *&&scene);
+    static void setup(string name, Scene *&&scene);
     static void update();
     static void draw();
     static void exit();
@@ -23,11 +24,11 @@ public:
     static void mousePressed(int x, int y, int button);
     static void mouseReleased(int x, int y, int button);
 
-    static void setNext(Scene *&&nest, bool clear = false);
-    static void setPrev();
+    static void setNext(string name, Scene *&&nest);
 
     static void networkConnect(string ip);
     static void networkSend(string message);
+    static void networkReset();
 
     static string getIP();
     static void setConnect(bool connect);
@@ -39,9 +40,8 @@ public:
 
     static void instance(GameObject &object);
 private:
-    static bool clear;
-    static unique_ptr<Scene> prevScene;
-    static vector<unique_ptr<Scene>> scenes;
+    static string name;
+    static unordered_map<string, unique_ptr<Scene>> scenes;
 
     static string ip;
     static int port;
