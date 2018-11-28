@@ -1,2 +1,0 @@
-qawsedrftgyhujikolp
-‚­‚Ÿ‚—‚¹‚„‚’‚†‚”‚‡‚™‚Ó‚¶‚±‚Œ‚
