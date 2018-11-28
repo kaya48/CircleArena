@@ -1,92 +1,90 @@
 #include "scenemanager.h"
 
-unique_ptr<Scene> SceneManager::prevScene;
-vector<unique_ptr<Scene>> SceneManager::scenes;
+#define SCENE_MANAGER_UDP_MESSAGE_SIZE 4888
+
+string SceneManager::name;
+unordered_map<string, unique_ptr<Scene>> SceneManager::scenes;
 string SceneManager::ip;
 int SceneManager::port;
 bool SceneManager::isConnect = false;
 ofxUDPManager SceneManager::udp;
 
-void SceneManager::setup(Scene *&&scene)
+void SceneManager::setup(string _name, Scene *&&scene)
 {
-    scenes.push_back(unique_ptr<Scene>(scene));
+    name = _name;
+    scenes[name] = unique_ptr<Scene>(scene);
+    scenes[name]->setup();
+
+
     ip = ofxIPAddress::getPrivate();
     port = 53548;
     udp.Create();
     udp.Bind(port);
     udp.SetNonBlocking(true);
-    scenes.back()->setup();
 }
 
 void SceneManager::update()
 {
-    if (prevScene) {
-        prevScene.release();
+    char message[SCENE_MANAGER_UDP_MESSAGE_SIZE];
+    if (udp.Receive(message, SCENE_MANAGER_UDP_MESSAGE_SIZE) > 0) {
+        scenes[name]->networkRecieved(message);
     }
-    char message[4888];
-    if (udp.Receive(message, 4888) > 0) {
-        scenes.back()->networkRecieved(message);
-    }
-    scenes.back()->update();
+    scenes[name]->update();
 }
 
 void SceneManager::draw()
 {
-    scenes.back()->draw();
+    scenes[name]->draw();
 }
 
 void SceneManager::exit()
 {
-    scenes.back()->exit();
+    scenes[name]->exit();
     udp.Close();
 }
 
 void SceneManager::keyPressed(int key)
 {
-    scenes.back()->keyPressed(key);
+    scenes[name]->keyPressed(key);
 }
 
 void SceneManager::keyReleased(int key)
 {
-    scenes.back()->keyReleased(key);
+    scenes[name]->keyReleased(key);
 }
 
 void SceneManager::mouseDragged(int x, int y, int button)
 {
-    scenes.back()->mouseDragged(x, y, button);
+    scenes[name]->mouseDragged(x, y, button);
 }
 
 void SceneManager::mousePressed(int x, int y, int button)
 {
-    scenes.back()->mousePressed(x, y, button);
+    scenes[name]->mousePressed(x, y, button);
 }
 
 void SceneManager::mouseReleased(int x, int y, int button)
 {
-    scenes.back()->mouseReleased(x, y, button);
+    scenes[name]->mouseReleased(x, y, button);
 }
 
-void SceneManager::setNext(Scene *&&nest, bool clear)
+void SceneManager::setNext(string _name, Scene *&&scene)
 {
-    scenes.back()->exit();
-    nest->setup();
-    if (clear) {
-        prevScene = std::move(scenes.back());
-        scenes.clear();
+    if (scene != nullptr) {
+        scenes[_name] = unique_ptr<Scene>(scene);
     }
-    scenes.push_back(unique_ptr<Scene>(nest));
-}
 
-void SceneManager::setPrev()
-{
-    prevScene = std::move(scenes.back());
-    scenes.pop_back();
+    if (scenes[_name]) {
+        scenes[name]->exit();
+        name = _name;
+        scenes[name]->setup();
+    }
 }
 
 void SceneManager::networkConnect(std::string ip)
 {
     udp.Connect(ip.c_str(), port);
-    isConnect = true;
+    setConnect(true);
 }
 
 void SceneManager::networkSend(std::string message)
@@ -94,6 +92,15 @@ void SceneManager::networkSend(std::string message)
     if (isConnect) {
         udp.Send(message.c_str(), message.size());
     }
+}
+
+void SceneManager::networkReset()
+{
+    udp.Close();
+    udp.Create();
+    udp.Bind(port);
+    udp.SetNonBlocking(true);
+    setConnect(false);
 }
 
 string SceneManager::getIP()
@@ -113,16 +120,16 @@ ofVec2f SceneManager::getScreenMouse()
 
 ofVec2f SceneManager::getWorldMouse()
 {
-    return scenes.back()->camera.worldPositionFrom(getScreenMouse());
+    return scenes[name]->camera.worldPositionFrom(getScreenMouse());
 }
 
 Camera &SceneManager::getCamera()
 {
-    return scenes.back()->camera;
+    return scenes[name]->camera;
 }
 
 void SceneManager::instance(GameObject &object)
 {
-    scenes.back()->add(object);
+    scenes[name]->add(object);
 }
 

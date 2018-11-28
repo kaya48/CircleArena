@@ -129,7 +129,7 @@ void EditorScene::uiEvent(ofxUIEventArgs &e)
     if (e.widget->getState() == OFX_UI_STATE_OVER) {
 
         if (e.isName("ready ok")) {
-            SceneManager::setNext(new NetworkScene());
+            SceneManager::setNext("NetworkScene", new NetworkScene());
         } else {
 
             for (string &status : statuss) {

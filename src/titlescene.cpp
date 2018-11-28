@@ -48,5 +48,5 @@ void TitleScene::exit()
 
 void TitleScene::mouseReleased(int x, int y, int button)
 {
-    SceneManager::setNext(new EditorScene(), true);
+    SceneManager::setNext("EditorScene", new EditorScene());
 }
